@@ -8,11 +8,11 @@
           (unique (cdr lis) p)
           (unique (cdr lis) (cons (car lis) p)))))
 
-(define (recycle orig digits)
+(define (recycle orig digit-count shift-digits)
   (let ((orig-list (string->list (number->string orig))))
     (let ((shifted (append
-                    (drop orig-list (- (length orig-list) digits))
-                    (take orig-list (- (length orig-list) digits)))))
+                    (drop orig-list (- digit-count shift-digits))
+                    (take orig-list (- digit-count shift-digits)))))
       (if (eq? #\0 (car shifted))
           #f
           (string->number
@@ -22,10 +22,11 @@
   (string-length (number->string n)))
 
 (define (find-recycles n)
-  (unique (map (lambda (i)
-                 (recycle n (+ 1 i)))
-               (iota (- (count-digits n) 1)))
-          ()))
+  (let ((digit-count (count-digits n)))
+    (unique (map (lambda (i)
+                   (recycle n digit-count (+ 1 i)))
+                 (iota (- digit-count 1)))
+            ())))
 
 (define (filter-recycles A B n)
   ;; A <= n < m <= B
