@@ -29,23 +29,29 @@
   ;; total-list must be sorted high to low
   (if (null? total-list)
       (if (= num-surprise 0) partial #f)
-      (if (< num-surprise 0)
+      (if (or (> num-surprise len)
+              (< num-surprise 0))
           #f
           (let ((total (car total-list)))
             (let-values (((min-score min-score-surp) (guess-min-score total))
                          ((max-score max-score-surp) (guess-max-score total)))
-              (if (or (= (remainder total 3) 1)
-                      (>= max-score p))
+              (if (and (or (= (remainder total 3) 1)
+                           (>= max-score p))
+                       (< num-surprise len))
+                  #;(num-high-scorer (cdr total-list) (- len 1) num-surprise p
+                                   (+ (if (>= max-score p) 1 0) partial))
                   (choose-better
                    (num-high-scorer (cdr total-list) (- len 1) num-surprise p
                                     (+ (if (>= max-score p) 1 0) partial))
                    (and
                     (not (or (< min-score-surp 0) (> max-score-surp 10)))
+                    (> num-surprise 0)
                     (num-high-scorer (cdr total-list) (- len 1) (- num-surprise 1) p
                                      (+ (if (>= max-score-surp p) 1 0) partial))))
                   (or
                    (and
                     (not (or (< min-score-surp 0) (> max-score-surp 10)))
+                    (> num-surprise 0)
                     (num-high-scorer (cdr total-list) (- len 1) (- num-surprise 1) p
                                      (+ (if (>= max-score-surp p) 1 0) partial)))
                    (num-high-scorer (cdr total-list) (- len 1) num-surprise p
