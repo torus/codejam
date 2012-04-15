@@ -39,8 +39,6 @@
                 (if (and (or (= (remainder total 3) 1)
                              (>= max-score p))
                          (< num-surprise len))
-                    #;(iter (cdr total-list) (- len 1) num-surprise
-                    (+ (if (>= max-score p) 1 0) partial))
                     (choose-better
                      (iter (cdr total-list) (- len 1) num-surprise
                            (+ (if (>= max-score p) 1 0) partial))
