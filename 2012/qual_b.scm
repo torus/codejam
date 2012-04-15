@@ -25,7 +25,8 @@
       (max a b)
       (or a b)))
 
-(define (num-high-scorer total-list len num-surprise p partial)
+(define (num-high-scorer total-list len num-surprise p)
+  (define (iter total-list len num-surprise partial)
   ;; total-list must be sorted high to low
   (if (null? total-list)
       (if (= num-surprise 0) partial #f)
@@ -38,27 +39,27 @@
               (if (and (or (= (remainder total 3) 1)
                            (>= max-score p))
                        (< num-surprise len))
-                  #;(num-high-scorer (cdr total-list) (- len 1) num-surprise p
+                  #;(iter (cdr total-list) (- len 1) num-surprise
                                    (+ (if (>= max-score p) 1 0) partial))
                   (choose-better
-                   (num-high-scorer (cdr total-list) (- len 1) num-surprise p
+                   (iter (cdr total-list) (- len 1) num-surprise
                                     (+ (if (>= max-score p) 1 0) partial))
                    (and
                     (not (or (< min-score-surp 0) (> max-score-surp 10)))
                     (> num-surprise 0)
-                    (num-high-scorer (cdr total-list) (- len 1) (- num-surprise 1) p
+                    (iter (cdr total-list) (- len 1) (- num-surprise 1)
                                      (+ (if (>= max-score-surp p) 1 0) partial))))
                   (or
                    (and
                     (not (or (< min-score-surp 0) (> max-score-surp 10)))
                     (> num-surprise 0)
-                    (num-high-scorer (cdr total-list) (- len 1) (- num-surprise 1) p
+                    (iter (cdr total-list) (- len 1) (- num-surprise 1)
                                      (+ (if (>= max-score-surp p) 1 0) partial)))
-                   (num-high-scorer (cdr total-list) (- len 1) num-surprise p
+                   (iter (cdr total-list) (- len 1) num-surprise
                                     (+ (if (>= max-score p) 1 0) partial)))
                   )
-
               )))))
+  (iter total-list len num-surprise 0))
 
 (define (main args)
   (let ((T (read)))
@@ -74,7 +75,7 @@
                                (if (= num 0)
                                    p
                                    (loop2 (cons (read) p) (- num 1))))))
-                           N S p 0)))
+                           N S p)))
               (print #`"Case #,(+ 1 (- T num-cases)): ,answer"))
             (loop (- num-cases 1)))
           'done))))
