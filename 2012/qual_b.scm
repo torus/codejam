@@ -26,6 +26,7 @@
       (or a b)))
 
 (define (num-high-scorer total-list len num-surprise p partial)
+  ;; total-list must be sorted high to low
   (if (null? total-list)
       (if (= num-surprise 0) partial #f)
       (if (< num-surprise 0)
@@ -33,13 +34,25 @@
           (let ((total (car total-list)))
             (let-values (((min-score min-score-surp) (guess-min-score total))
                          ((max-score max-score-surp) (guess-max-score total)))
-              (choose-better
-               (num-high-scorer (cdr total-list) (- len 1) num-surprise p
-                                (+ (if (>= max-score p) 1 0) partial))
-               (and
-                (not (or (< min-score-surp 0) (> max-score-surp 10)))
-                (num-high-scorer (cdr total-list) (- len 1) (- num-surprise 1) p
-                                 (+ (if (>= max-score-surp p) 1 0) partial)))))))))
+              (if (or (= (remainder total 3) 1)
+                      (>= max-score p))
+                  (choose-better
+                   (num-high-scorer (cdr total-list) (- len 1) num-surprise p
+                                    (+ (if (>= max-score p) 1 0) partial))
+                   (and
+                    (not (or (< min-score-surp 0) (> max-score-surp 10)))
+                    (num-high-scorer (cdr total-list) (- len 1) (- num-surprise 1) p
+                                     (+ (if (>= max-score-surp p) 1 0) partial))))
+                  (or
+                   (and
+                    (not (or (< min-score-surp 0) (> max-score-surp 10)))
+                    (num-high-scorer (cdr total-list) (- len 1) (- num-surprise 1) p
+                                     (+ (if (>= max-score-surp p) 1 0) partial)))
+                   (num-high-scorer (cdr total-list) (- len 1) num-surprise p
+                                    (+ (if (>= max-score p) 1 0) partial)))
+                  )
+
+              )))))
 
 (define (main args)
   (let ((T (read)))
@@ -49,10 +62,12 @@
                  (S (read))
                  (p (read)))
             (let ((answer (num-high-scorer
-                           (let loop2 ((p ()) (num N))
-                                (if (= num 0)
-                                    p
-                                    (loop2 (cons (read) p) (- num 1))))
+                           (reverse
+                            (sort
+                             (let loop2 ((p ()) (num N))
+                               (if (= num 0)
+                                   p
+                                   (loop2 (cons (read) p) (- num 1))))))
                            N S p 0)))
               (print #`"Case #,(+ 1 (- T num-cases)): ,answer"))
             (loop (- num-cases 1)))
