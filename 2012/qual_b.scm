@@ -25,9 +25,19 @@
       (max a b)
       (or a b)))
 
+(load "../memo-tree.scm")
+
 (define (num-high-scorer total-list len num-surprise p)
+  (let ((memo-tree (make-memo-tree)))
+
+
   (define (iter total-list len num-surprise partial)
     ;; total-list must be sorted high to low
+    (memo-tree-ref-or-add!
+     memo-tree (list total-list num-surprise)
+     (lambda ()
+
+
     (if (null? total-list)
         (if (= num-surprise 0) partial #f)
         (if (or (> num-surprise len)
@@ -56,8 +66,10 @@
                      (iter (cdr total-list) (- len 1) num-surprise
                            (+ (if (>= max-score p) 1 0) partial)))
                     )
-                )))))
-  (iter total-list len num-surprise 0))
+                ))))
+
+    )))
+  (iter total-list len num-surprise 0)))
 
 (define (main args)
   (let ((T (read)))
@@ -66,6 +78,7 @@
           (let* ((N (read))
                  (S (read))
                  (p (read)))
+            (format (current-error-port) "~D\t"N)
             (let ((answer (num-high-scorer
                            (reverse
                             (sort
