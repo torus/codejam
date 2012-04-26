@@ -6,10 +6,13 @@
 
 (define (memo-tree-add! tree path value)
   (let* ((queue (memo-tree-get-queue tree))
-         (entry (cons (list queue path value) (cdr queue))))
+         (tail (cdr queue))
+         (entry (cons (list queue path value) tail)))
     ;; each element should be like this -> ((prev path value . ()) . next)
+    (unless (null? tail)
+            (set-car! (car tail) entry))
     (set-cdr! queue entry) ; insert path & value pair into head of the list
-    #?=queue
+    ;; #?=queue
     (trie-put! (memo-tree-get-trie tree) path entry)))
 
 (define (memo-tree-ref tree path)
@@ -17,10 +20,17 @@
          (queue (memo-tree-get-queue tree))
          (next (cdr entry))
          (prev (caar entry)))
-    (set-cdr! entry (cdr queue))
-    (set-car! (car entry) queue)
-    (unless (null? next) (set-car! (car next) prev))
-    #?=queue
+    (unless (eq? (cdr queue) entry)
+            (set-cdr! entry (cdr queue))
+            (set-cdr! prev next)
+            (unless (null? next) (set-car! (car next) prev))
+
+            (let ((orig-1st (cdr queue)))
+              (set-cdr! queue entry)
+              (set-car! (car entry) queue)
+              (set-car! (car orig-1st) entry)))
+
+    ;; #?=queue
     (caddar entry)))
 
 ;; internal
@@ -52,6 +62,8 @@
   (let ((t (make-memo-tree)))
     (memo-tree-add! t '(a b c) "abc")
     (memo-tree-add! t '(d) "d")
+    (memo-tree-add! t '(e f) "df")
+    (memo-tree-add! t '(g) "g")
 
     (print (memo-tree-ref t '(d)))
     (print (memo-tree-ref t '(a b c)))
