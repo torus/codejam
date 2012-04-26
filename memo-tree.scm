@@ -1,7 +1,16 @@
 (use util.trie)
 
+;; export
+
+(define (make-memo-tree) (cons (make-trie) (list 'head)))
+
 (define (memo-tree-add! tree path value)
   (trie-put! (memo-tree-get-trie tree) path value))
+
+(define (memo-tree-ref tree path)
+  (trie-get (memo-tree-get-trie tree) path))
+
+;; internal
 
 (define (memo-tree-get-trie tree)
   (car tree))
@@ -9,16 +18,15 @@
 (define (memo-tree-get-list tree)
   (cdr tree))
 
-(define (make-memo-tree) (cons (make-trie) (list 'head)))
-
-(define (memo-tree-ref tree path)
-  (trie-get (memo-tree-get-trie tree) path))
+;; utility
 
 (define (memo-tree-ref-or-add! tree path thunk)
   (guard (e (else (let ((val (thunk)))
                     (memo-tree-add! tree path val)
                     val)))
          (memo-tree-ref tree path)))
+
+;; test
 
 (define hoge-data
   (let ((n 0))
