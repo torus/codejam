@@ -6,13 +6,13 @@
 
 (define (memo-tree-add! tree path value)
   (let* ((queue (memo-tree-get-queue tree))
-         (entry (list path queue value)))
+         (entry (cons (list path queue value) (cdr queue))))
     ;; each element should be like this -> ((prev value . ()) . next)
-    (set-cdr! queue (cons entry (cdr queue))) ; insert path & value pair into head of the list
+    (set-cdr! queue entry) ; insert path & value pair into head of the list
     (trie-put! (memo-tree-get-trie tree) path entry)))
 
 (define (memo-tree-ref tree path)
-  (caddr (trie-get (memo-tree-get-trie tree) path)))
+  (caddar (trie-get (memo-tree-get-trie tree) path)))
 
 ;; internal
 
