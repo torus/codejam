@@ -1,19 +1,12 @@
-;(use srfi-34)
+(use util.trie)
 
 (define (memo-tree-add! tree path value)
-  (if (null? (cdr path))
-      (hash-table-put! tree (car path) value)
-      (let ((new-tree (make-hash-table)))
-          (hash-table-put! tree (car path) new-tree)
-          (memo-tree-add! new-tree (cdr path) value))))
+  (trie-put! tree path value))
 
-(define (make-memo-tree) (make-hash-table))
+(define (make-memo-tree) (make-trie))
 
 (define (memo-tree-ref tree path)
-  (if (null? (cdr path))
-      (hash-table-get tree (car path))
-      (let ((sub-tree (hash-table-get tree (car path))))
-        (memo-tree-ref sub-tree (cdr path)))))
+  (trie-get tree path))
 
 (define (memo-tree-ref-or-add! tree path thunk)
   (guard (e (else (let ((val (thunk)))
