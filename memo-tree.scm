@@ -5,17 +5,20 @@
 (define (make-memo-tree) (cons (make-trie) (list 'head)))
 
 (define (memo-tree-add! tree path value)
-  (trie-put! (memo-tree-get-trie tree) path value))
+  (let ((entry (cons path (list value)))
+        (queue (memo-tree-get-queue tree)))
+    (set-cdr! queue (cons entry (cdr queue))) ; insert path & value pair into head of the list
+    (trie-put! (memo-tree-get-trie tree) path entry)))
 
 (define (memo-tree-ref tree path)
-  (trie-get (memo-tree-get-trie tree) path))
+  (cadr (trie-get (memo-tree-get-trie tree) path)))
 
 ;; internal
 
 (define (memo-tree-get-trie tree)
   (car tree))
 
-(define (memo-tree-get-list tree)
+(define (memo-tree-get-queue tree)
   (cdr tree))
 
 ;; utility
